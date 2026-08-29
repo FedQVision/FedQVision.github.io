@@ -277,10 +277,10 @@
       <div class="columns is-centered has-text-centered">
         <div class="column is-four-fifths">
           <div class="publication-image">
-            <img src="static/images/top5_by_dataset.png" alt="Grouped bar chart of top-5 neighbourhood overlap per dataset for every method, with error bars" style="width: 100%; height: auto;">
+            <img src="static/images/top5_by_dataset.png" alt="Grouped bar chart of top-5 neighbourhood overlap per dataset for every method" style="width: 100%; height: auto;">
           </div>
           <p class="description">
-            Top-5 neighbourhood overlap against the centralized consensus oracle, per dataset, with seed variability. Beyond a single accuracy number, this asks how much of the <i>full</i> class-relation geometry each method recovers &mdash; and here the result is an honest split rather than a clean sweep. FedQ-Vision gives the strongest recovery on CIFAR-10 (0.962), Tiny-ImageNet (0.732) and Fashion-MNIST (0.938), while the iterative, alignment-based Sheaf-FRL leads on MNIST, FEMNIST and CIFAR-100, in each case by a small margin. Sheaf-FRL performs ten rounds of Procrustes alignment; matching or exceeding it on half the datasets with a <b>single alignment-free round</b> is the intended outcome. Per metric, the whitened-anchor variant is best on local-neighbourhood and absolute-scale recovery, while the learnable-gate flagship gives the most faithful pairwise-distance <i>ordering</i> (Spearman).
+            Top-5 neighbourhood overlap against the centralized consensus oracle, per dataset, 10-seed means at Dirichlet &alpha;&nbsp;=&nbsp;0.5 (FedAvg<sup>&dagger;</sup> and FedProx<sup>&dagger;</sup> coincide and share a bar). Beyond a single accuracy number, this asks how much of the <i>full</i> class-relation geometry each method recovers &mdash; and here the result is an honest split rather than a clean sweep. FedQ-Vision gives the strongest recovery on CIFAR-10 (0.962), Tiny-ImageNet (0.732) and Fashion-MNIST (0.938), while the iterative, alignment-based Sheaf-FRL leads on MNIST, FEMNIST and CIFAR-100, in each case by a small margin. Sheaf-FRL performs ten rounds of Procrustes alignment; matching or exceeding it on half the datasets with a <b>single alignment-free round</b> is the intended outcome. Per metric, the whitened-anchor variant is best on local-neighbourhood and absolute-scale recovery, while the learnable-gate flagship gives the most faithful pairwise-distance <i>ordering</i> (Spearman).
           </p>
         </div>
       </div>
