@@ -2,7 +2,7 @@
 
 Project page for **FedQ-Vision: Alignment-Free Federated Visual Learning via
 Quotient Geometry** (Tirtho Roy, Ushashi Bhattacharjee, Koushik Howlader —
-Iowa State University). Under review at WACV 2027.
+Iowa State University). Preprint, currently under peer review.
 
 Live at <https://fedqvision.github.io/>.
 
