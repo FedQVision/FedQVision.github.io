@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+<meta name="description" content="FedQ-Vision: alignment-free federated visual learning via quotient geometry. Clients running different frozen vision encoders transmit a compressed, coordinate-invariant Gram summary of their class prototypes; the server recovers a global visual quotient geometry in one round, with no alignment maps and no representation training.">
+<meta property="og:title" content="FedQ-Vision: Alignment-Free Federated Visual Learning via Quotient Geometry"/>
+<meta property="og:description" content="Different frozen encoders cannot share coordinates - but they can share geometry. One round, no alignment, one to two orders of magnitude less communication."/>
+<meta property="og:image" content="static/images/teaser.png" />
+<meta property="og:image:width" content="1200"/>
+<meta property="og:image:height" content="630"/>
+<meta name="twitter:title" content="FedQ-Vision: Alignment-Free Federated Visual Learning via Quotient Geometry">
+<meta name="twitter:description" content="Federated visual learning across heterogeneous frozen encoders by aggregating gauge-invariant class-prototype Gram matrices in a single round.">
+<meta name="twitter:image" content="static/images/teaser.png">
+<meta name="twitter:card" content="summary_large_image">
+
+<!-- Google Scholar / citation metadata -->
+<meta name="citation_title" content="FedQ-Vision: Alignment-Free Federated Visual Learning via Quotient Geometry">
+<meta name="citation_author" content="Roy, Tirtho">
+<meta name="citation_author" content="Bhattacharjee, Ushashi">
+<meta name="citation_author" content="Howlader, Koushik">
+<meta name="citation_publication_date" content="2026">
+<meta name="citation_pdf_url" content="https://fedqvision.github.io/static/paper/paper.pdf">
+<link rel="canonical" href="https://fedqvision.github.io/">
+  <title>FedQ-Vision: Alignment-Free Federated Visual Learning via Quotient Geometry</title>
+  <link rel="icon" type="image/x-icon" href="static/images/teaser.png">
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro"
+  rel="stylesheet">
+
+  <link rel="stylesheet" href="static/css/bulma.min.css">
+  <link rel="stylesheet" href="static/css/bulma-carousel.min.css">
+  <link rel="stylesheet" href="static/css/bulma-slider.min.css">
+  <link rel="stylesheet" href="static/css/fontawesome.all.min.css">
+  <link rel="stylesheet"
+  href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  <link rel="stylesheet" href="static/css/index.css">
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script defer src="static/js/fontawesome.all.min.js"></script>
+  <script src="static/js/bulma-carousel.min.js"></script>
+  <script src="static/js/bulma-slider.min.js"></script>
+  <script src="static/js/index.js"></script>
+</head>
+<body>
+
+
+  <section class="hero">
+    <div class="hero-body">
+      <div class="container is-max-desktop">
+        <div class="columns is-centered">
+          <div class="column has-text-centered">
+            <h1 class="title is-1 publication-title">FedQ-Vision: Alignment-Free Federated Visual Learning via Quotient Geometry</h1>
+            <div class="is-size-5 publication-authors">
+              <div class="author-list">
+                <span class="author-block">
+                  <a href="https://www.linkedin.com/in/tirtho-roy-apon/" target="_blank"><b>Tirtho Roy</b></a><sup style="color:#1f77b4;">1,&dagger;</sup>,
+                </span>
+                <span class="author-block">
+                  <a href="https://www.linkedin.com/in/ushashi-bhattacharjee/" target="_blank">Ushashi Bhattacharjee</a><sup>1</sup>,
+                </span>
+                <span class="author-block">
+                  <a href="https://www.cs.iastate.edu/people/koushik-howlader" target="_blank">Koushik Howlader</a><sup>1</sup>
+                </span>
+              </div>
+
+              <div class="is-size-5 publication-authors">
+                <p><sup>1</sup> Iowa State University, USA</p>
+                <p><i><sup style="color:#1f77b4;">&dagger;</sup>Corresponding author: <a href="mailto:tirtho@iastate.edu">tirtho@iastate.edu</a></i></p>
+                <p class="venue-accepted"><span class="tag-accepted">Under review</span> <a href="https://wacv.thecvf.com/" target="_blank">WACV 2027</a> &mdash; Conference Round&nbsp;2 submission (algorithms track)</p>
+              </div>
+
+                  <div class="column has-text-centered">
+                    <div class="publication-links">
+                      <!-- Paper PDF -->
+ <span class="link-block">
+  <a href="static/paper/paper.pdf"
+     target="_blank"
+     class="external-link button is-normal is-rounded is-dark">
+    <span class="icon">
+      <i class="fas fa-file-pdf"></i>
+    </span>
+    <span>Paper</span>
+  </a>
+</span>
+
+      <!-- Code -->
+      <span class="link-block">
+          <a href="https://github.com/tirtho149/FedQ-Vision" target="_blank"
+              class="external-link button is-normal is-rounded is-dark">
+              <span class="icon">
+                  <i class="fab fa-github"></i>
+              </span>
+              <span>Code</span>
+          </a>
+      </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Teaser image -->
+<section class="hero teaser">
+  <div class="container is-max-desktop">
+    <div class="hero-body">
+       <h2 class="title is-3 has-text-centered">The central idea</h2>
+      <img src="static/images/teaser.png" alt="The same class configuration seen in two clients' coordinate frames looks different coordinate-wise, yet both give the same Gram matrix; coordinate averaging collapses the geometry while quotient aggregation retains full downstream utility">
+      <h2 class="subtitle has-text-centered">
+      The same class configuration <i>Z</i>&#8902; seen in two clients' coordinate frames, <i>Z</i>&#8902;<i>Q<sub>A</sub></i> and <i>Z</i>&#8902;<i>Q<sub>B</sub></i>, looks completely different coordinate-wise &mdash; yet the Gram matrix is <b>identical</b>: <i>Z<sub>A</sub>Z<sub>A</sub></i><sup>&#8868;</sup> = <i>Z<sub>B</sub>Z<sub>B</sub></i><sup>&#8868;</sup> = <i>G</i>&#8902;. A federated method that averages <i>coordinates</i> collapses the geometry; FedQ-Vision aggregates the invariant <i>Gram</i> and is unaffected. <b>Right:</b> when every client's coordinates are scrambled by an independent orthogonal gauge, quotient aggregation retains full downstream utility while coordinate averaging degrades.
+      </h2>
+    </div>
+  </div>
+</section>
+<!-- End teaser image -->
+
+
+<!-- Abstract -->
+<section class="section hero is-light">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Abstract</h2>
+        <div class="content has-text-justified">
+          <p>
+            Federated visual learning increasingly involves clients running <i>different</i> frozen vision foundation models whose representation coordinate systems are neither comparable nor shareable: parameters cannot be averaged, and existing methods must learn cross-space alignment maps, usually from shared pilot data. We introduce <b>FedQ-Vision</b>, an alignment-free framework in which each client transmits only a compressed, coordinate-invariant summary &mdash; the Gram matrix of its class prototypes &mdash; from which the server recovers a global visual <b>quotient geometry</b> in a single round, with no alignment and no representation training, backed by explicit recovery guarantees (invariance, identifiability, optimal low-rank communication, and neighbourhood stability). As a flagship aggregator we introduce a <b>learnable-gate</b> rule that fuses this quotient geometry with a whitened shared-anchor representation, <i>learning</i> per class-pair how far to trust each, to remain robust under extreme label skew. Across six standard benchmarks &mdash; spanning handwritten digit/character, apparel/object, and 200-class recognition &mdash; under heterogeneous CNN and transformer encoders, FedQ-Vision attains the best test-image classification accuracy of all methods: a statistically significant <b>+9.4-point</b> gain over the no-collaboration baseline, surpassing all six federated baselines on every dataset, at <b>one to two orders of magnitude lower communication in a single round</b>. Requiring only frozen encoders and class prototypes, it extends to new encoders without retraining and improves as foundation models do.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- End Abstract -->
+
+
+<!-- Guiding question -->
+<section class="section">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Is alignment necessary at all?</h2>
+        <div class="content has-text-justified">
+          <p>
+            A hospital runs DINOv2, a partner lab runs CLIP, a third site runs a ResNet it trained years ago. None of them can average parameters &mdash; architectures and feature dimensions differ &mdash; and their latent spaces are not directly comparable. The dominant remedy is <i>representation alignment</i>: learn maps between client latent spaces, typically from shared pilot samples and iterative optimisation.
+          </p>
+          <p>
+            Our starting point is that the task-relevant structure of a set of class prototypes lives not in their absolute coordinates but in their <b>pairwise geometry</b>, which is invariant to the orthogonal gauge relating different encoders' coordinate systems. If the server only needs that geometry, clients can transmit a coordinate-invariant summary &mdash; the prototype Gram matrix &mdash; and the server can aggregate summaries directly: no alignment maps, no shared pilot for alignment, no iterative training.
+          </p>
+          <p>
+            FedQ-Vision turns that principle into an algorithm. Each client (i) freezes its encoder, (ii) forms one prototype per class, (iii) builds the invariant Gram geometry, (iv) compresses it to rank <i>r</i>, and (v) transmits only the compressed factors and per-class support counts. The server reliability-weights the summaries into a global quotient geometry usable for retrieval, nearest-neighbour transfer, and clustering.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- End Guiding question -->
+
+
+<!-- Contributions -->
+<section class="section hero is-light">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Contributions</h2>
+        <div class="content has-text-left">
+          <ol>
+            <li><b>Theory.</b> Exact orthogonal invariance and quotient identifiability of the prototype Gram, an unbiased-averaging concentration bound, the optimal low-rank communication trade-off (Eckart&ndash;Young), nearest-neighbour preservation, and graceful degradation under <i>approximate</i> orthogonality &mdash; a recovery decomposition of the form <i>total error &le; sampling + model-mismatch + compression + noise</i>.</li>
+            <li><b>Algorithm.</b> A one-shot, alignment-free aggregator, plus a support-adaptive variant that fuses direct quotient geometry with a <i>whitened shared-anchor</i> (Nystr&ouml;m) representation to stay robust under extreme non-IID skew. A learnable gate decides, per class pair, how far to trust each source.</li>
+            <li><b>Evaluation.</b> On six datasets drawn from the federated baselines' own protocols, under truly heterogeneous frozen encoders (ResNet-50 and ViT-B/16), FedQ-Vision matches or beats every applicable baseline on downstream utility and geometry recovery at 30&ndash;300&times; lower communication and a single round, with 10-seed paired significance tests.</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- End Contributions -->
+
+
+<!-- Method -->
+<section class="section">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">What a client actually sends</h2>
+        <div class="content has-text-justified">
+          <p>
+            A Gram matrix is aggregatable only when row identities match across clients, so the nodes are <b>class prototypes</b>. Client <i>k</i> averages its embeddings per class, row-normalises them, and forms <i>G<sub>k</sub></i> = <i>P&#772;<sub>k</sub>P&#772;<sub>k</sub></i><sup>&#8868;</sup>, a <i>C</i>&times;<i>C</i> matrix. The client's feature dimension &mdash; 2048 for a ResNet-50, 768 for a ViT-B/16 &mdash; cancels exactly. It then sends the rank-<i>r</i> eigensystem (&asymp;&nbsp;4(<i>Cr</i>&nbsp;+&nbsp;<i>r</i>) bytes, about <b>13&nbsp;KB</b> at <i>C</i>&nbsp;=&nbsp;100, <i>r</i>&nbsp;=&nbsp;32) plus per-class support counts. Once.
+          </p>
+          <p>
+            The server standardises each client's off-diagonal entries, runs two rounds of reliability-weighted consensus with a pair-support mask, and projects onto the PSD cone. Because heterogeneous encoders agree on the <i>ranking</i> of class relations more than on absolute values, this recalibration matters more than any single weighting heuristic.
+          </p>
+          <p>
+            Under extreme label skew, some class pairs are never co-observed on any client and cannot be estimated directly. Each class is therefore <i>also</i> encoded by its similarity profile to a small shared anchor set (256 unlabelled images), whitened by the anchor kernel. Because the anchors are shared items, these profiles are gauge-invariant and directly averageable. A <b>learnable gate</b> &alpha;<sub>ab</sub> = &sigma;(<i>a</i> + <i>b&nbsp;S<sub>ab</sub></i>/<i>K</i>), where <i>S<sub>ab</sub></i> counts the clients observing both classes, blends the two sources per pair &mdash; trusting the direct geometry where pairs are well co-observed and the anchors where they are not. Its three parameters are fitted on held-out validation partitions with an oracle-free objective; no encoder or model is ever trained.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- End Method -->
+
+
+<!-- Main results table -->
+<section class="hero is-small is-light">
+  <div class="hero-body">
+    <div class="container is-max-desktop">
+      <h2 class="title is-3 has-text-centered">Test-image classification accuracy</h2>
+      <div class="columns is-centered">
+        <div class="column is-full">
+          <div class="table-container">
+            <table class="table is-fullwidth is-narrow is-hoverable" style="font-size: 0.85rem;">
+              <thead>
+                <tr>
+                  <th>Method</th><th>Venue</th>
+                  <th class="has-text-right">MNIST</th>
+                  <th class="has-text-right">FEMNIST</th>
+                  <th class="has-text-right">F-MNIST</th>
+                  <th class="has-text-right">CIFAR-10</th>
+                  <th class="has-text-right">CIFAR-100</th>
+                  <th class="has-text-right">Tiny-IN</th>
+                  <th class="has-text-right">Bytes/cl.</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td>Local-Only</td><td>&mdash;</td><td class="has-text-right">0.639</td><td class="has-text-right">0.414</td><td class="has-text-right">0.679</td><td class="has-text-right">0.692</td><td class="has-text-right">0.326</td><td class="has-text-right">0.463</td><td class="has-text-right">0</td></tr>
+                <tr><td>FedAvg<sup>&dagger;</sup></td><td>AISTATS'17</td><td class="has-text-right">0.117</td><td class="has-text-right">0.023</td><td class="has-text-right">0.445</td><td class="has-text-right">0.575</td><td class="has-text-right">0.016</td><td class="has-text-right">0.023</td><td class="has-text-right">4.1M</td></tr>
+                <tr><td>FedProx<sup>&dagger;</sup></td><td>MLSys'20</td><td class="has-text-right">0.117</td><td class="has-text-right">0.023</td><td class="has-text-right">0.445</td><td class="has-text-right">0.574</td><td class="has-text-right">0.016</td><td class="has-text-right">0.023</td><td class="has-text-right">4.1M</td></tr>
+                <tr><td>FedProto<sup>&dagger;</sup></td><td>AAAI'22</td><td class="has-text-right">0.512</td><td class="has-text-right">0.215</td><td class="has-text-right">0.609</td><td class="has-text-right">0.579</td><td class="has-text-right">0.236</td><td class="has-text-right">0.228</td><td class="has-text-right">204K</td></tr>
+                <tr><td>FedTopo<sup>&dagger;</sup></td><td>AAAI'26</td><td class="has-text-right">0.560</td><td class="has-text-right">0.250</td><td class="has-text-right">0.681</td><td class="has-text-right">0.681</td><td class="has-text-right">0.272</td><td class="has-text-right">0.272</td><td class="has-text-right">2.9M</td></tr>
+                <tr><td>Rel.-FedTopo<sup>&dagger;</sup></td><td>arXiv'26</td><td class="has-text-right">0.564</td><td class="has-text-right">0.246</td><td class="has-text-right">0.679</td><td class="has-text-right">0.669</td><td class="has-text-right">0.270</td><td class="has-text-right">0.270</td><td class="has-text-right">1.6M</td></tr>
+                <tr><td>Sheaf-FRL</td><td>arXiv'26</td><td class="has-text-right">0.714</td><td class="has-text-right">0.482</td><td class="has-text-right">0.723</td><td class="has-text-right">0.731</td><td class="has-text-right">0.441</td><td class="has-text-right">0.405</td><td class="has-text-right">360K</td></tr>
+                <tr class="has-background-white-ter">
+                  <td><b>FedQ-Vision (adaptive)</b></td><td><b>Ours</b></td>
+                  <td class="has-text-right"><b>0.804</b>*</td><td class="has-text-right"><b>0.496</b>*</td><td class="has-text-right"><b>0.763</b>*</td><td class="has-text-right"><b>0.793</b>*</td><td class="has-text-right"><b>0.455</b>*</td><td class="has-text-right"><b>0.467</b></td><td class="has-text-right"><b>204K</b></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="description has-text-centered">
+            Test-image classification accuracy under heterogeneous encoders (ResNet-50 and ViT-B/16 on disjoint client groups), Dirichlet &alpha;&nbsp;=&nbsp;0.5, 10-seed mean. This is the metric the federated baselines themselves optimise. <sup>&dagger;</sup>&nbsp;Native execution is undefined across incompatible encoder dimensions, so these methods are adapted to the same dimension-agnostic shared-anchor substrate; Local-Only, Sheaf-FRL and FedQ-Vision run natively. *&nbsp;Significantly better than the runner-up (one-sided paired Wilcoxon, Holm-corrected, <i>p</i>&nbsp;&lt;&nbsp;0.05). Baselines run their <i>full native</i> multi-round protocols (8&ndash;20 rounds); FedQ-Vision uses <b>one</b>.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- End Main results table -->
+
+
+<!-- Frontier -->
+<section class="hero is-small">
+  <div class="hero-body">
+    <div class="container">
+      <h2 class="title is-3 has-text-centered">Best accuracy, at the Pareto corner</h2>
+      <div class="columns is-centered has-text-centered">
+        <div class="column is-four-fifths">
+          <div class="publication-image">
+            <img src="static/images/frontier.png" alt="Scatter plot of mean classification accuracy against communication bytes per client on a log scale; FedQ-Vision sits highest at around 200 KB, above Sheaf-FRL, while FedAvg and FedProx sit lowest at 4.1 MB" style="width: 78%; height: auto;">
+          </div>
+          <p class="description">
+            Mean classification accuracy across the six datasets against communication bytes per client (log scale). FedQ-Vision (star) attains the highest mean accuracy at one of the lowest communication costs of any method &mdash; an order of magnitude below the parameter- and topology-sharing baselines, which additionally spend 8&ndash;20 rounds to get there. Parameter averaging is the clearest failure: averaging classifier weights fit to different anchor statistics destroys the decision boundary, and on the 100- and 200-class problems accuracy falls to near chance.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- End Frontier -->
+
+
+<!-- Geometry recovery -->
+<section class="hero is-small is-light">
+  <div class="hero-body">
+    <div class="container">
+      <h2 class="title is-3 has-text-centered">Geometry recovery: a split, not a sweep</h2>
+      <div class="columns is-centered has-text-centered">
+        <div class="column is-four-fifths">
+          <div class="publication-image">
+            <img src="static/images/top5_by_dataset.png" alt="Grouped bar chart of top-5 neighbourhood overlap per dataset for every method, with error bars" style="width: 100%; height: auto;">
+          </div>
+          <p class="description">
+            Top-5 neighbourhood overlap against the centralized consensus oracle, per dataset, with seed variability. Beyond a single accuracy number, this asks how much of the <i>full</i> class-relation geometry each method recovers &mdash; and here the result is an honest split rather than a clean sweep. FedQ-Vision gives the strongest recovery on CIFAR-10 (0.962), Tiny-ImageNet (0.732) and Fashion-MNIST (0.938), while the iterative, alignment-based Sheaf-FRL leads on MNIST, FEMNIST and CIFAR-100, in each case by a small margin. Sheaf-FRL performs ten rounds of Procrustes alignment; matching or exceeding it on half the datasets with a <b>single alignment-free round</b> is the intended outcome. Per metric, the whitened-anchor variant is best on local-neighbourhood and absolute-scale recovery, while the learnable-gate flagship gives the most faithful pairwise-distance <i>ordering</i> (Spearman).
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- End Geometry recovery -->
+
+
+<!-- Gauge invariance -->
+<section class="hero is-small">
+  <div class="hero-body">
+    <div class="container is-max-desktop">
+      <h2 class="title is-3 has-text-centered">Invariance is exact, not approximate</h2>
+      <div class="columns is-centered has-text-centered">
+        <div class="column is-four-fifths">
+          <div class="publication-image">
+            <img src="static/images/scrambling.png" alt="Bar chart comparing kNN accuracy and NMI for quotient aggregation versus coordinate averaging under a random orthogonal gauge per client" style="width: 62%; height: auto;">
+          </div>
+          <p class="description">
+            A controlled gauge-scrambling experiment: every client's coordinates are rotated by an independent random orthogonal matrix. The Gram matrix is unchanged to <b>floating-point precision</b> (max relative error 3.5&nbsp;&times;&nbsp;10<sup>&minus;16</sup>), so quotient aggregation is completely unaffected, while coordinate averaging loses roughly half its kNN accuracy. This is Theorem&nbsp;1 measured rather than argued.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- End Gauge invariance -->
+
+
+<!-- Compression -->
+<section class="hero is-small is-light">
+  <div class="hero-body">
+    <div class="container is-max-desktop">
+      <h2 class="title is-3 has-text-centered">How little can a client send?</h2>
+      <div class="columns is-centered has-text-centered">
+        <div class="column is-four-fifths">
+          <div class="publication-image">
+            <img src="static/images/compression.png" alt="Top-5 overlap against bytes per client on a log scale, annotated with the transmitted rank from r=4 to r=100, plateauing from r=32" style="width: 66%; height: auto;">
+          </div>
+          <p class="description">
+            Geometry fidelity against payload size, annotated with the transmitted rank. Recovery climbs steeply to <i>r</i>&nbsp;=&nbsp;16 and is <b>flat from <i>r</i>&nbsp;=&nbsp;32 upward</b> &mdash; exactly what the spectra predict, since the consensus Gram concentrates 91&ndash;100% of its energy in its leading 32 eigenvalues on five of six datasets. Rank-32 communication therefore loses almost nothing, which is why the whole method fits in tens of kilobytes per client.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- End Compression -->
+
+
+<!-- Encoder analysis -->
+<section class="hero is-small">
+  <div class="hero-body">
+    <div class="container is-max-desktop">
+      <h2 class="title is-3 has-text-centered">Do real encoders satisfy the assumption?</h2>
+      <div class="columns is-centered">
+        <div class="column is-four-fifths">
+          <div class="table-container">
+            <table class="table is-fullwidth is-narrow is-hoverable" style="font-size: 0.85rem;">
+              <thead>
+                <tr>
+                  <th>Dataset</th>
+                  <th class="has-text-right">CKA</th>
+                  <th class="has-text-right">Gram-&rho;</th>
+                  <th class="has-text-right">relFro</th>
+                  <th class="has-text-right">Procrustes</th>
+                  <th class="has-text-right">Energy @ <i>r</i>&nbsp;=&nbsp;32</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td>CIFAR-100</td><td class="has-text-right">0.927</td><td class="has-text-right">0.822</td><td class="has-text-right">0.459</td><td class="has-text-right">0.269</td><td class="has-text-right">0.914</td></tr>
+                <tr><td>CIFAR-10</td><td class="has-text-right">0.948</td><td class="has-text-right">0.935</td><td class="has-text-right">0.414</td><td class="has-text-right">0.199</td><td class="has-text-right">1.000</td></tr>
+                <tr><td>FEMNIST</td><td class="has-text-right">0.904</td><td class="has-text-right">0.858</td><td class="has-text-right">0.085</td><td class="has-text-right">0.315</td><td class="has-text-right">0.999</td></tr>
+                <tr><td>F-MNIST</td><td class="has-text-right">0.982</td><td class="has-text-right">0.934</td><td class="has-text-right">0.188</td><td class="has-text-right">0.126</td><td class="has-text-right">1.000</td></tr>
+                <tr><td>MNIST</td><td class="has-text-right">0.955</td><td class="has-text-right">0.858</td><td class="has-text-right">0.088</td><td class="has-text-right">0.178</td><td class="has-text-right">1.000</td></tr>
+                <tr><td>Tiny-IN</td><td class="has-text-right">0.909</td><td class="has-text-right">0.914</td><td class="has-text-right">0.553</td><td class="has-text-right">0.327</td><td class="has-text-right">0.766</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="description has-text-centered">
+            Cross-encoder analysis of ResNet-50 versus ViT-B/16 class-prototype geometry. The two encoders are highly aligned in a <i>coordinate-free</i> sense (CKA 0.90&ndash;0.98, Gram-Spearman 0.82&ndash;0.94), confirming that the quotient geometry is shared even though the raw coordinates are not. But the best-orthogonal (Procrustes) residual is non-trivial (0.13&ndash;0.33): real frozen encoders are <b>not</b> exact isometries, so it is the approximate regime &mdash; not the idealised model &mdash; that governs practice, and FedQ-Vision still recovers useful geometry there.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- End Encoder analysis -->
+
+
+<!-- Takeaway -->
+<section class="section hero is-light">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">What the results actually support</h2>
+        <div class="content has-text-justified">
+          <p>
+            <b>Coordinates are the wrong unit of federated communication.</b> Once clients run different frozen encoders, parameter and prototype averaging are not merely weaker &mdash; they are averaging quantities that have no shared meaning. Aggregating gauge-invariant statistics instead turns the central obstacle into a well-posed estimation problem, with invariance, concentration and low-rank recovery giving end-to-end error control.
+          </p>
+          <p>
+            <b>One round is enough for downstream utility.</b> FedQ-Vision attains the highest classification accuracy on every dataset &mdash; a +9.4-point mean gain over no collaboration &mdash; against baselines running their full native multi-round budgets, while communicating one to two orders of magnitude fewer bytes.
+          </p>
+          <p>
+            <b>Under extreme skew, iterative alignment still wins on geometry.</b> At Dirichlet &alpha;&nbsp;=&nbsp;0.1, Sheaf-FRL leads FedQ-Vision on top-5 recovery on all six datasets: mapping every client into a shared stalk over ten rounds is exactly what compensates for missing per-client statistics. The honest reading is a trade-off, not a sweep. FedQ-Vision degrades gracefully &mdash; the whitened anchors reconstruct each class from whatever client holds it, and the gate shifts weight toward them where support is thin &mdash; and stays well ahead of the prototype and relation baselines while remaining one-shot and alignment-free.
+          </p>
+          <p>
+            <b>No single variant dominates.</b> The whitened anchors give the best local-neighbourhood and absolute-scale recovery; the recalibrated direct geometry is competitive on both; the learnable-gate flagship gives the most faithful global ordering and the best accuracy. That complementarity, rather than domination, is what the ablations show.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- End Takeaway -->
+
+
+<!-- Limitations -->
+<section class="section">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Limitations</h2>
+        <div class="content has-text-left">
+          <ul>
+            <li><b>The theorems are a lens, not new mathematics.</b> Invariance and Eckart&ndash;Young are classical; the contribution is the federated formulation and the error control it buys.</li>
+            <li><b>Shared structure is required.</b> Corrupting one encoder until prototype CKA falls to &asymp;&nbsp;0.85 drops top-5 recovery from 0.78 to 0.64, and a near-random encoder (CKA&nbsp;&asymp;&nbsp;0.2) collapses <i>all</i> methods. Alignment-free aggregation suits encoders that share structure &mdash; as frozen foundation models empirically do.</li>
+            <li><b>Privacy-compatible, not private.</b> The one-shot release admits a Gaussian mechanism with no multi-round composition penalty, but a naive full-matrix mechanism preserves utility only at large budgets. Structure-aware DP on the rank-<i>r</i> factor is future work.</li>
+            <li><b>Scale.</b> Aggregation is sub-second to <i>C</i>&nbsp;=&nbsp;500 clients&nbsp;&times;&nbsp;classes; the completion step dominates at <i>C</i>&nbsp;=&nbsp;1000 (&asymp;&nbsp;5&nbsp;s), so thousands of classes need Nystr&ouml;m or block extensions. Client scale is modest (<i>K</i>&nbsp;=&nbsp;10, tested 5&ndash;20).</li>
+            <li><b>Image classification needs anchors.</b> Anchor-free tasks &mdash; retrieval, clustering, nearest-neighbour transfer &mdash; consume the Gram directly, but classifying a <i>new</i> image uses the shared-anchor read-out, since mapping an encoder-specific embedding into the canonical frame would itself be an alignment step.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- End Limitations -->
+
+
+<!--BibTeX -->
+<section class="section hero is-light" id="BibTeX">
+  <div class="container is-max-desktop content">
+      <h2 class="title">BibTeX</h2>
+      <p><i>Status: under review at WACV 2027 (Conference Round 2). This entry will be updated once the paper has a permanent record.</i></p>
+      <pre><code>@misc{roy2026fedqvision,
+  title  = {FedQ-Vision: Alignment-Free Federated Visual Learning
+            via Quotient Geometry},
+  author = {Roy, Tirtho and Bhattacharjee, Ushashi and Howlader, Koushik},
+  year   = {2026},
+  note   = {Under review, WACV 2027},
+  url    = {https://fedqvision.github.io/}
+}</code></pre>
+  </div>
+</section>
+
+
+<!-- Team -->
+<section class="section">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered">
+      <div class="column is-full-width has-text-centered">
+        <h2 class="title is-3">
+          <span class="dvima">Team</span>
+        </h2>
+        <div class="columns is-multiline is-centered">
+
+          <div class="column is-one-fifth has-text-centered video-column">
+            <a href="https://www.linkedin.com/in/tirtho-roy-apon/" target="_blank" style="border-bottom: none;">
+              <span class="image">
+                <img src="static/images/team/Tirtho.png" alt="Tirtho Roy" style="width: 90%; border-radius: 50%;" />
+              </span>
+              <span style="font-weight: bold;">Tirtho Roy</span>
+            </a>
+            <p class="team-links">
+              <a href="https://www.linkedin.com/in/tirtho-roy-apon/" target="_blank"
+                 aria-label="Tirtho Roy on LinkedIn" style="border-bottom: none;">
+                <span class="icon"><i class="fab fa-linkedin"></i></span>
+              </a>
+            </p>
+            <p class="eql-cntrb"><i>Corresponding author</i></p>
+          </div>
+
+          <div class="column is-one-fifth has-text-centered video-column">
+            <a href="https://www.linkedin.com/in/ushashi-bhattacharjee/" target="_blank" style="border-bottom: none;">
+              <span class="image">
+                <img src="static/images/team/Ushashi.png" alt="Ushashi Bhattacharjee" style="width: 90%; border-radius: 50%;" />
+              </span>
+              <span style="font-weight: bold;">Ushashi Bhattacharjee</span>
+            </a>
+            <p class="team-links">
+              <a href="https://www.linkedin.com/in/ushashi-bhattacharjee/" target="_blank"
+                 aria-label="Ushashi Bhattacharjee on LinkedIn" style="border-bottom: none;">
+                <span class="icon"><i class="fab fa-linkedin"></i></span>
+              </a>
+              <a href="https://scholar.google.com/citations?user=nE0JzCEAAAAJ&amp;hl=en" target="_blank"
+                 aria-label="Ushashi Bhattacharjee on Google Scholar" style="border-bottom: none;">
+                <span class="icon"><i class="ai ai-google-scholar"></i></span>
+              </a>
+            </p>
+          </div>
+
+          <div class="column is-one-fifth has-text-centered video-column">
+            <a href="https://www.cs.iastate.edu/people/koushik-howlader" target="_blank" style="border-bottom: none;">
+              <span class="image">
+                <img src="static/images/team/Koushik.png" alt="Koushik Howlader" style="width: 90%; border-radius: 50%;" />
+              </span>
+              <span style="font-weight: bold;">Koushik Howlader</span>
+            </a>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- End Team -->
+
+
+  <footer class="footer">
+  <div class="container">
+    <div class="columns is-centered">
+      <div class="column is-8">
+        <div class="content">
+
+          <p>
+            This page was built using the <a href="https://github.com/eliahuhorwitz/Academic-project-page-template" target="_blank">Academic Project Page Template</a> which was adopted from the <a href="https://nerfies.github.io" target="_blank">Nerfies</a> project page.
+            You are free to borrow the source code of this website, we just ask that you link back to this page in the footer. <br> This website is licensed under a <a rel="license"  href="http://creativecommons.org/licenses/by-sa/4.0/" target="_blank">Creative
+            Commons Attribution-ShareAlike 4.0 International License</a>.
+          </p>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+  </body>
+  </html>
