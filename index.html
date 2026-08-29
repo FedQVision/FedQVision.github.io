@@ -5,12 +5,12 @@
 <meta name="description" content="FedQ-Vision: alignment-free federated visual learning via quotient geometry. Clients running different frozen vision encoders transmit a compressed, coordinate-invariant Gram summary of their class prototypes; the server recovers a global visual quotient geometry in one round, with no alignment maps and no representation training.">
 <meta property="og:title" content="FedQ-Vision: Alignment-Free Federated Visual Learning via Quotient Geometry"/>
 <meta property="og:description" content="Different frozen encoders cannot share coordinates - but they can share geometry. One round, no alignment, one to two orders of magnitude less communication."/>
-<meta property="og:image" content="static/images/teaser.png" />
+<meta property="og:image" content="static/images/pipeline.png" />
 <meta property="og:image:width" content="1200"/>
 <meta property="og:image:height" content="630"/>
 <meta name="twitter:title" content="FedQ-Vision: Alignment-Free Federated Visual Learning via Quotient Geometry">
 <meta name="twitter:description" content="Federated visual learning across heterogeneous frozen encoders by aggregating gauge-invariant class-prototype Gram matrices in a single round.">
-<meta name="twitter:image" content="static/images/teaser.png">
+<meta name="twitter:image" content="static/images/pipeline.png">
 <meta name="twitter:card" content="summary_large_image">
 
 <!-- Google Scholar / citation metadata -->
@@ -22,7 +22,7 @@
 <meta name="citation_pdf_url" content="https://fedqvision.github.io/static/paper/paper.pdf">
 <link rel="canonical" href="https://fedqvision.github.io/">
   <title>FedQ-Vision: Alignment-Free Federated Visual Learning via Quotient Geometry</title>
-  <link rel="icon" type="image/x-icon" href="static/images/teaser.png">
+  <link rel="icon" type="image/x-icon" href="static/images/pipeline.png">
   <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro"
   rel="stylesheet">
 
@@ -104,10 +104,10 @@
 <section class="hero teaser">
   <div class="container is-max-desktop">
     <div class="hero-body">
-       <h2 class="title is-3 has-text-centered">The central idea</h2>
-      <img src="static/images/teaser.png" alt="The same class configuration seen in two clients' coordinate frames looks different coordinate-wise, yet both give the same Gram matrix; coordinate averaging collapses the geometry while quotient aggregation retains full downstream utility">
+       <h2 class="title is-3 has-text-centered">How FedQ-Vision works</h2>
+      <img src="static/images/pipeline.png" alt="Pipeline: each client encodes private images with its own frozen encoder, pools class prototypes, forms a Gram matrix, compresses it to rank r, and transmits it once; the server aggregates the summaries into a global quotient geometry used for kNN, clustering and semantic topology">
       <h2 class="subtitle has-text-centered">
-      The same class configuration <i>Z</i>&#8902; seen in two clients' coordinate frames, <i>Z</i>&#8902;<i>Q<sub>A</sub></i> and <i>Z</i>&#8902;<i>Q<sub>B</sub></i>, looks completely different coordinate-wise &mdash; yet the Gram matrix is <b>identical</b>: <i>Z<sub>A</sub>Z<sub>A</sub></i><sup>&#8868;</sup> = <i>Z<sub>B</sub>Z<sub>B</sub></i><sup>&#8868;</sup> = <i>G</i>&#8902;. A federated method that averages <i>coordinates</i> collapses the geometry; FedQ-Vision aggregates the invariant <i>Gram</i> and is unaffected. <b>Right:</b> when every client's coordinates are scrambled by an independent orthogonal gauge, quotient aggregation retains full downstream utility while coordinate averaging degrades.
+      Every client keeps its images local and runs its <b>own</b> frozen encoder, so feature dimensions differ and coordinates are incomparable. It pools class prototypes, forms the coordinate-invariant Gram geometry <i>G<sub>k</sub></i> = <i>P&#772;<sub>k</sub>P&#772;<sub>k</sub></i><sup>&#8868;</sup>, truncates it to rank <i>r</i>, and transmits it <b>once</b>. The server reliability-weights the summaries and projects onto the PSD cone &mdash; no cross-client alignment, no shared pilot, no training &mdash; producing a global quotient geometry whose canonical realisation supports kNN transfer, clustering, and semantic topology.
       </h2>
     </div>
   </div>
@@ -155,6 +155,21 @@
   </div>
 </section>
 <!-- End Guiding question -->
+
+
+<!-- The central idea -->
+<section class="hero is-small">
+  <div class="container is-max-desktop">
+    <div class="hero-body">
+       <h2 class="title is-3 has-text-centered">The central idea</h2>
+      <img src="static/images/teaser.png" alt="The same class configuration seen in two clients' coordinate frames looks different coordinate-wise, yet both give the same Gram matrix; coordinate averaging collapses the geometry while quotient aggregation retains full downstream utility">
+      <h2 class="subtitle has-text-centered">
+      The same class configuration <i>Z</i>&#8902; seen in two clients' coordinate frames, <i>Z</i>&#8902;<i>Q<sub>A</sub></i> and <i>Z</i>&#8902;<i>Q<sub>B</sub></i>, looks completely different coordinate-wise &mdash; yet the Gram matrix is <b>identical</b>: <i>Z<sub>A</sub>Z<sub>A</sub></i><sup>&#8868;</sup> = <i>Z<sub>B</sub>Z<sub>B</sub></i><sup>&#8868;</sup> = <i>G</i>&#8902;. A federated method that averages <i>coordinates</i> collapses the geometry; FedQ-Vision aggregates the invariant <i>Gram</i> and is unaffected. <b>Right:</b> when every client's coordinates are scrambled by an independent orthogonal gauge, quotient aggregation retains full downstream utility while coordinate averaging degrades.
+      </h2>
+    </div>
+  </div>
+</section>
+<!-- End the central idea -->
 
 
 <!-- Contributions -->
